@@ -105,7 +105,7 @@ const updateState = (endpoint, job, thingName, state) => {
     .updateJobExecution({
       jobId: job.jobId,
       status: state,
-      thingName: thingName
+      thingName
     }).promise())
   );
 };
@@ -124,7 +124,7 @@ chain.use(endpointResolver('iot:Jobs'));
  * Initialization of the different components
  * of the application.
  */
-chain.use(async (input, output, next) => {
+chain.use((input, output, next) => {
   // Verifying whether the given options are valid.
   const value = schema.validate(program.opts());
 

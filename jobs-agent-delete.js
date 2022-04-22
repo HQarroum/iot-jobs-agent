@@ -55,7 +55,7 @@ const thingsStats = (current, total) => `Deleting ${total} thing(s) from AWS IoT
  * @return a promise resolved when the given
  * `thing` has been deleted.
  */
-const deleteThing = async (thing) => {
+const deleteThing = (thing) => {
   return (pool
     .enqueue(() => new AWS.Iot().deleteThing({ thingName: thing }).promise())
     .then(() => {
