@@ -7,6 +7,8 @@
 # iot-jobs-agent
 > A simulation AWS IoT Jobs agent that can process jobs for thousands of devices and report a state to AWS IoT Jobs.
 
+[![CodeFactor](https://www.codefactor.io/repository/github/hqarroum/iot-jobs-agent/badge)](https://www.codefactor.io/repository/github/hqarroum/iot-jobs-agent)
+
 Current version: **1.0.0**
 
 ## 📋 Table of content
