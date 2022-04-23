@@ -4,10 +4,12 @@ import Chain from 'middleware-chain-js';
 import AWS from 'aws-sdk';
 import ora from 'ora';
 import Pool from 'promise-pool-js';
+import Joi from 'joi';
 
 // Middlewares.
 import initializationRoutines from './lib/middlewares/initialization-routines.js';
 import generateDevices from './lib/middlewares/generate-devices.js';
+import schemaValidator from './lib/middlewares/schema-validator.js';
 
 // Instanciating the middleware chain.
 const chain = new Chain();
@@ -15,15 +17,17 @@ const chain = new Chain();
 // Creating the promise pool.
 const pool = new Pool(10);
 
-// Statistics.
-const statistics = {
-  deleted: 0
-};
-
 // Spinners.
 const spinners = {
   deletion: null
 };
+
+/**
+ * The command options schema.
+ */
+const schema = Joi.object().keys({
+  number: Joi.number().min(1).required()
+}).unknown();
 
 /**
  * Command-line interface.
@@ -33,11 +37,6 @@ const program = new Command()
   .description('Deletes the selected amount of IoT things from the AWS IoT registry.')
   .option('-n, --number <number>', 'Specifies the amount of the things to delete from AWS IoT.')
   .parse(process.argv);
-
-/**
- * Constants.
- */
-const deviceNumber = parseInt(program.opts().number, 10);
 
 /**
  * @return a text associated with the deletion spinner
@@ -58,45 +57,32 @@ const thingsStats = (current, total) => `Deleting ${total} thing(s) from AWS IoT
 const deleteThing = (thing) => {
   return (pool
     .enqueue(() => new AWS.Iot().deleteThing({ thingName: thing }).promise())
-    .then(() => {
-      // Incrementing the `deleted` statistic.
-      statistics.deleted++;
-      // Updating the spinner and resolving the promise.
-      spinners.deletion.text = thingsStats(statistics.deleted, deviceNumber);
-      return (Promise.resolve());
-    })
   );
 };
 
 /**
- * Injecting the initialization routines into the `chain`.
+ * Injecting the middlewares into the `chain`.
  */
-chain.use(initializationRoutines);
-
-/**
- * Verifying whether the given options are valid.
- */
- chain.use((_, output, next) => {
-  if (!deviceNumber) {
-    return (output.fail(`Parameter 'number' was expected, but not found.`));
-  }
-  next();
-});
-
-/**
- * Injecting the devices into the `chain`.
- */
-chain.use(generateDevices(deviceNumber));
+ chain
+  .use(initializationRoutines)
+  .use(schemaValidator(schema, program.opts()))
+  .use(generateDevices);
 
 /**
  * Creating the things on AWS IoT.
  */
 chain.use(async (input, _, next) => {
-  spinners.deletion = ora(thingsStats(0, deviceNumber)).start();
-  
+  let deleted = 0;
+
+  // Creating the deletion spinner.
+  spinners.deletion = ora(thingsStats(0, input.number)).start();
+
   // Deleting the things.
   await Promise.all(
-    input.devices.map(deleteThing)
+    input.devices.map(async (device) => {
+      await deleteThing(device);
+      spinners.deletion.text = thingsStats(++deleted, input.number);
+    })
   );
 
   // Marking the spinner as having suceeded.
@@ -107,7 +93,7 @@ chain.use(async (input, _, next) => {
 /**
  * Signaling the success of the operation.
  */
-chain.use(() => signale.success(`All '${deviceNumber}' thing(s) have been deleted from the AWS IoT device registry.`));
+chain.use((input) => signale.success(`All '${input.number}' thing(s) have been deleted from the AWS IoT device registry.`));
 
 /**
  * Error handler.

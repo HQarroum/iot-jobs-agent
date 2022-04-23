@@ -12,6 +12,7 @@ import { Command } from 'commander';
 import initializationRoutines from './lib/middlewares/initialization-routines.js';
 import endpointResolver from './lib/middlewares/endpoint-resolver.js';
 import generateDevices from './lib/middlewares/generate-devices.js';
+import schemaValidator from './lib/middlewares/schema-validator.js';
 
 // Instanciating the middleware chain.
 const chain = new Chain();
@@ -51,14 +52,6 @@ const program = new Command()
   .option('-m, --min-delay <milliseconds>', 'An optional minimum delay to use when executing jobs.')
   .option('-x, --max-delay <milliseconds>', 'An optional maximum delay to use when executing jobs.')
   .parse(process.argv);
-
-/**
- * Constants.
- */
-const deviceNumber = parseInt(program.opts().number, 10);
-const failureRate = parseInt(program.opts().failureRate, 10);
-const minDelay = parseInt(program.opts().minDelay, 10);
-const maxDelay = parseInt(program.opts().maxDelay, 10);
 
 /**
  * @return a text associated with the job retrieval spinner.
@@ -113,36 +106,22 @@ const updateState = (endpoint, job, thingName, state) => {
 /**
  * Injecting the initialization routines into the `chain`.
  */
-chain.use(initializationRoutines);
-
-/**
- * Injecting the AWS IoT Jobs endpoint into the `chain`.
- */
-chain.use(endpointResolver('iot:Jobs'));
+chain
+  .use(initializationRoutines)
+  .use(endpointResolver('iot:Jobs'))
+  .use(schemaValidator(schema, program.opts()))
+  .use(generateDevices);
 
 /**
  * Initialization of the different components
  * of the application.
  */
-chain.use((input, output, next) => {
-  // Verifying whether the given options are valid.
-  const value = schema.validate(program.opts());
-
-  // If there is a validator error, we fail.
-  if (value.error) {
-    return (output.fail(value.error));
-  }
-
+chain.use((input, _, next) => {
   // Calculating the number of things to fail.
-  input.thingsToFail = Math.ceil(deviceNumber * ((failureRate || 0) / 100));
+  input.thingsToFail = Math.ceil(input.number * ((input.failureRate || 0) / 100));
   signale.info(`Setting a failure rate of ${input.thingsToFail} thing(s).`);
   next();
 });
-
-/**
- * Injecting the devices into the `chain`.
- */
- chain.use(generateDevices(deviceNumber));
 
 /**
  * Retrieving the jobs for the devices.
@@ -151,7 +130,7 @@ chain.use(async (input, _, next) => {
   let completed = 0;
   
   // Creating the job retrieval spinner.
-  spinners.jobRetrieval = ora(jobRetrievalStats(0, deviceNumber)).start();
+  spinners.jobRetrieval = ora(jobRetrievalStats(0, input.number)).start();
 
   // A list of jobs to execute.
   input.jobs = [];
@@ -169,7 +148,7 @@ chain.use(async (input, _, next) => {
         input.jobs.push(result);
       }
       // Updating the job retrieval spinner.
-      spinners.jobRetrieval.text = jobRetrievalStats(++completed, deviceNumber);
+      spinners.jobRetrieval.text = jobRetrievalStats(++completed, input.number);
     })
   );
   
@@ -196,7 +175,7 @@ chain.use(async (input) => {
   await Promise.all(
     input.jobs.map(async (device) => {
       // Executing the job.
-      const status = await executor(device, minDelay, maxDelay);
+      const status = await executor(device, input.minDelay, input.maxDelay);
 
       // Reporting the job execution as succeded or failed.
       await updateState(input.endpoint, device.job, device.thingName, status);

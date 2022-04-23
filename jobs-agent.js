@@ -1,19 +1,15 @@
 #!/usr/bin/env node
 
-import _ from 'lodash';
 import { Command } from 'commander';
 import { createRequire } from "module";
 
 // Retrieving package informations.
 const { version, description } = createRequire(import.meta.url)('./package.json');
 
-// Initializing commander.
-const program = new Command();
-
 /**
  * Command-line interface.
  */
-program
+const program = new Command()
   .version(version)
   .name('jobs-agent')
   .description(description)
@@ -24,7 +20,7 @@ program
   .parse(process.argv);
 
 // Error handling.
-if (!_.find(program.commands, (cmd) => cmd.name() === program.args[0])) {
+if (!program.commands.find((command) => command.name() === program.args[0])) {
   program.outputHelp();
   process.exit(-1);
 }

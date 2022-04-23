@@ -1,13 +1,15 @@
+import { Command } from 'commander';
 import signale from 'signale';
 import Chain from 'middleware-chain-js';
 import AWS from 'aws-sdk';
 import ora from 'ora';
 import Pool from 'promise-pool-js';
-import { Command } from 'commander';
+import Joi from 'joi';
 
 // Middlewares.
 import initializationRoutines from './lib/middlewares/initialization-routines.js';
 import generateDevices from './lib/middlewares/generate-devices.js';
+import schemaValidator from './lib/middlewares/schema-validator.js';
 
 // Instanciating the middleware chain.
 const chain = new Chain();
@@ -15,15 +17,17 @@ const chain = new Chain();
 // Creating the promise pool.
 const pool = new Pool(10);
 
-// Statistics.
-const statistics = {
-  created: 0
-};
-
 // Spinners.
 const spinners = {
   creation: null
 };
+
+/**
+ * The command options schema.
+ */
+const schema = Joi.object().keys({
+  number: Joi.number().min(1).required()
+}).unknown();
 
 /**
  * Command-line interface.
@@ -33,11 +37,6 @@ const program = new Command()
   .description('Creates the selected amount of IoT things on the AWS IoT registry.')
   .option('-n, --number <number>', 'Specifies the amount of the things to create on AWS IoT.')
   .parse(process.argv);
-
-/**
- * Constants.
- */
-const deviceNumber = parseInt(program.opts().number, 10);
 
 /**
  * @return a text associated with the creation spinner
@@ -62,43 +61,34 @@ const createThing = (thingName) => {
       if (err && err.name !== 'ResourceAlreadyExistsException') {
         return (reject(err));
       }
-      // Incrementing the `created` statistic.
-      statistics.created++;
-      // Updating the spinner and resolving the promise.
-      resolve(spinners.creation.text = thingsStats(statistics.created, deviceNumber));
+      resolve();
     });
   })));
 };
 
 /**
- * Injecting the initialization routines into the `chain`.
+ * Injecting the middlewares into the `chain`.
  */
-chain.use(initializationRoutines);
-
-/**
- * Verifying whether the given options are valid.
- */
- chain.use((_, output, next) => {
-  if (!deviceNumber) {
-    return (output.fail(`Parameter 'number' was expected, but not found.`));
-  }
-  next();
-});
-
-/**
- * Injecting the devices into the `chain`.
- */
-chain.use(generateDevices(deviceNumber));
+ chain
+  .use(initializationRoutines)
+  .use(schemaValidator(schema, program.opts()))
+  .use(generateDevices);
 
 /**
  * Creating the things on AWS IoT.
  */
 chain.use(async (input, _, next) => {
-  spinners.creation = ora(thingsStats(0, deviceNumber)).start();
+  let created = 0;
+
+  // Creating the creation spinner.
+  spinners.creation = ora(thingsStats(0, input.number)).start();
   
   // Creating the things on AWS IoT.
   await Promise.all(
-    input.devices.map(createThing)
+    input.devices.map(async (device) => {
+      await createThing(device);
+      spinners.creation.text = thingsStats(++created, input.number);
+    })
   );
 
   // Marking the spinner as having suceeded.
@@ -109,7 +99,7 @@ chain.use(async (input, _, next) => {
 /**
  * Signaling the success of the operation.
  */
-chain.use(() => signale.success(`All '${deviceNumber}' thing(s) have been created on the AWS IoT device registry.`));
+chain.use((input) => signale.success(`All '${input.number}' thing(s) have been created on the AWS IoT device registry.`));
 
 /**
  * Error handler.
