@@ -1,3 +1,4 @@
+import { Command } from 'commander';
 import Joi from 'joi';
 import signale from 'signale';
 import Chain from 'middleware-chain-js';
@@ -6,7 +7,6 @@ import ora from 'ora';
 import Pool from 'promise-pool-js';
 import State from './lib/common/states.js';
 import defaultExecutor from './lib/executors/default-executor.js';
-import { Command } from 'commander';
 
 // Middlewares.
 import initializationRoutines from './lib/middlewares/initialization-routines.js';
@@ -174,10 +174,8 @@ chain.use(async (input) => {
     input.jobs.map(async (device) => {
       // Executing the job.
       const status = await executor(device, input.minDelay, input.maxDelay);
-
       // Reporting the job execution as succeded or failed.
       await updateState(input.endpoint, device.job, device.thingName, status);
-
       // Updating the job execution spinner.
       spinners.completion.text = completionStats(
         status === State.SUCCEEDED ? ++succeeded : succeeded,
