@@ -25,8 +25,6 @@ const pool = new Pool(5);
 const spinners = {
   // Jobs retrieval.
   jobRetrieval: null,
-  // Updating the job to reflect the in progress state.
-  update: null,
   // Completion spinner.
   completion: null
 };
@@ -197,9 +195,12 @@ chain.use(async (input) => {
  * Error handler.
  */
 chain.use((err, _1, output, next) => {
-  spinners.jobRetrieval.stop();
-  spinners.update.stop();
-  spinners.completion.stop();
+  if (spinners.jobRetrieval) {
+    spinners.jobRetrieval.stop();
+  }
+  if (spinners.completion) {
+    spinners.completion.stop();
+  }
   output.fail(err);
   next();
 });
