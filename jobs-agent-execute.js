@@ -158,7 +158,7 @@ chain.use(async (input, _, next) => {
  * Executing the job and reporting the state
  * to AWS IoT Jobs.
  */
-chain.use(async (input) => {
+chain.use(async (input, _1, next) => {
   let failed     = 0;
   let succeeded  = 0;
 
