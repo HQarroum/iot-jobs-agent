@@ -77,17 +77,21 @@ chain.use(async (input, _, next) => {
   // Creating the deletion spinner.
   spinners.deletion = ora(thingsStats(0, input.number)).start();
 
-  // Deleting the things.
-  await Promise.all(
-    input.devices.map(async (device) => {
-      await deleteThing(device);
-      spinners.deletion.text = thingsStats(++deleted, input.number);
-    })
-  );
+  try {
+    // Deleting the things.
+    await Promise.all(
+      input.devices.map(async (device) => {
+        await deleteThing(device);
+        spinners.deletion.text = thingsStats(++deleted, input.number);
+      })
+    );
 
-  // Marking the spinner as having suceeded.
-  spinners.deletion.succeed().stop();
-  next();
+    // Marking the spinner as having suceeded.
+    spinners.deletion.succeed().stop();
+    next();
+  } catch (e) {
+    next(e);
+  }
 });
 
 /**
@@ -101,7 +105,6 @@ chain.use((input) => signale.success(`All '${input.number}' thing(s) have been d
  chain.use((err, _1, output, next) => {
   spinners.deletion.stop();
   output.fail(err);
-  next();
 });
 
 // Starting the middleware chain.

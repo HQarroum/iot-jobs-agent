@@ -84,16 +84,20 @@ chain.use(async (input, _, next) => {
   spinners.creation = ora(thingsStats(0, input.number)).start();
   
   // Creating the things on AWS IoT.
-  await Promise.all(
-    input.devices.map(async (device) => {
-      await createThing(device);
-      spinners.creation.text = thingsStats(++created, input.number);
-    })
-  );
+  try {
+    await Promise.all(
+      input.devices.map(async (device) => {
+        await createThing(device);
+        spinners.creation.text = thingsStats(++created, input.number);
+      })
+    );
 
-  // Marking the spinner as having suceeded.
-  spinners.creation.succeed().stop();
-  next();
+    // Marking the spinner as having suceeded.
+    spinners.creation.succeed().stop();
+    next();
+  } catch (e) {
+    next(e);
+  }
 });
 
 /**
@@ -107,7 +111,6 @@ chain.use((input) => signale.success(`All '${input.number}' thing(s) have been c
 chain.use((err, _1, output, next) => {
   spinners.creation.stop();
   output.fail(err);
-  next();
 });
 
 // Starting the middleware chain.

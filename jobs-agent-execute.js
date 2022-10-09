@@ -168,25 +168,29 @@ chain.use(async (input) => {
   // Creating the job execution spinner.
   spinners.completion = ora(completionStats(0, 0, input.devices.length)).start();
 
-  // Marking the devices as having either succeeded
-  // or failed the job execution.
-  await Promise.all(
-    input.jobs.map(async (device) => {
-      // Executing the job.
-      const status = await executor(device, input.minDelay, input.maxDelay);
-      // Reporting the job execution as succeded or failed.
-      await updateState(input.endpoint, device.job, device.thingName, status);
-      // Updating the job execution spinner.
-      spinners.completion.text = completionStats(
-        status === State.SUCCEEDED ? ++succeeded : succeeded,
-        status === State.FAILED ? ++failed : failed,
-        input.devices.length
-      );
-    })
-  );
+  try {
+    // Marking the devices as having either succeeded
+    // or failed the job execution.
+    await Promise.all(
+      input.jobs.map(async (device) => {
+        // Executing the job.
+        const status = await executor(device, input.minDelay, input.maxDelay);
+        // Reporting the job execution as succeded or failed.
+        await updateState(input.endpoint, device.job, device.thingName, status);
+        // Updating the job execution spinner.
+        spinners.completion.text = completionStats(
+          status === State.SUCCEEDED ? ++succeeded : succeeded,
+          status === State.FAILED ? ++failed : failed,
+          input.devices.length
+        );
+      })
+    );
 
-  spinners.completion.succeed().stop();
-  signale.success(`The job execution has been performed on '${input.devices.length}' devices.`);
+    spinners.completion.succeed().stop();
+    signale.success(`The job execution has been performed on '${input.devices.length}' devices.`);
+  } catch (e) {
+    next(e);
+  }
 });
 
 /**
@@ -200,7 +204,6 @@ chain.use((err, _1, output, next) => {
     spinners.completion.stop();
   }
   output.fail(err);
-  next();
 });
 
 // Starting the middleware chain.
