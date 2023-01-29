@@ -21,7 +21,7 @@
     "aws-sdk": "^2.1254.0",
     "chalk": "^4.0.0",
     "cli-table": "^0.3.11",
-    "commander": "^9.4.1",
+    "commander": "^9.5.0",
     "joi": "^17.7.0",
     "middleware-chain-js": "^2.0.2",
     "ora": "^6.1.2",
