@@ -22,7 +22,7 @@
     "chalk": "^4.0.0",
     "cli-table": "^0.3.11",
     "commander": "^9.4.1",
-    "joi": "^17.7.0",
+    "joi": "^17.7.1",
     "middleware-chain-js": "^2.0.2",
     "ora": "^6.1.2",
     "promise-pool-js": "^1.0.2",
