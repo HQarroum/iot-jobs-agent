@@ -18,7 +18,7 @@
   "author": "Halim Qarroum <hqm.post@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "aws-sdk": "^2.1254.0",
+    "aws-sdk": "^2.1354.0",
     "chalk": "^4.0.0",
     "cli-table": "^0.3.11",
     "commander": "^9.4.1",
