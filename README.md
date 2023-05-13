@@ -41,15 +41,15 @@ npx iot-jobs-agent --version
 
 The IoT Jobs agent is a Node.js command-line tool providing a way for developers, architects and DevOps teams to test a deployment of [AWS IoT Jobs](https://docs.aws.amazon.com/iot/latest/developerguide/iot-jobs.html) at scale by simulating the behavior of a real device.
 
-When used, the agent allows you to create as many virtual thing(s) as needed in the AWS IoT device registry, and to download jobs from the AWS IoT Jobs data plane, potentially execute the jobs locally, and report back a state to the AWS IoT Jobs data plane.
+The agent allows you to create as many virtual thing(s) as needed in the AWS IoT device registry, download jobs from the AWS IoT Jobs data plane, potentially execute the jobs locally, and report back a state to the AWS IoT Jobs data plane on the success or the failure of a job execution.
 
 ## 📘 Usage
 
-> You will find [here](./TUTORIAL.md) a tutorial describing a step-by-step process to use the device agent.
+> You will find [here](./TUTORIAL.md) a tutorial describing a step-by-step process describing how to use this agent.
 
 ### Creating devices
 
-The `iot-jobs-agent` package provides a convenient way to create virtual devices in the AWS IoT device registry to simulate a large fleet of devices. To create devices, you just need to tell the agent how many it should create.
+The `iot-jobs-agent` tool provides a convenient way to create virtual devices in the AWS IoT device registry to simulate a large fleet of devices. To create devices, you just need to tell the agent how many it should create.
 
 ```bash
 # The below example will create 10 things in your AWS IoT device registry.
