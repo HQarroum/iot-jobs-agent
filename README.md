@@ -3,9 +3,10 @@
   <img src="assets/icon.png">
   <br><br>
   <hr />
-  <p align="center">An AWS IoT Jobs autonomous agent that can process jobs for thousands of devices and report a state to AWS IoT Jobs.<p>
+  <p align="center"><em>An AWS IoT Jobs autonomous agent that can process jobs for thousands of devices and report a state to AWS IoT Jobs. Extremely useful for testing and simulation purposes.</em><p>
   <p align="center">
     <a href="https://www.codefactor.io/repository/github/hqarroum/iot-jobs-agent" target="_blank"><img alt="CodeFactor" title="CodeFactor" src="https://www.codefactor.io/repository/github/hqarroum/iot-jobs-agent/badge"/></a>
+    <a href="https://deepsource.io/gh/HQarroum/iot-jobs-agent/?ref=repository-badge" target="_blank"><img alt="DeepSource" title="DeepSource" src="https://deepsource.io/gh/HQarroum/iot-jobs-agent.svg/?label=active+issues&show_trend=true" /></a>
   </p>
 </p>
 <br>
