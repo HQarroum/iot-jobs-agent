@@ -1,14 +1,17 @@
-<br /><br /><br /><br />
+<br><br><br>
 <p align="center">
-  <img src="assets/icon.png" />
+  <img src="assets/icon.png">
+  <br><br>
+  <h2 align="center">IoT Jobs Agent</h2>
+  <p align="center">An AWS IoT Jobs autonomous agent that can process jobs for thousands of devices and report a state to AWS IoT Jobs.<p>
+  <p align="center">
+    <a href="https://www.codefactor.io/repository/github/hqarroum/iot-jobs-agent" target="_blank"><img alt="CodeFactor" title="CodeFactor" src="https://www.codefactor.io/repository/github/hqarroum/iot-jobs-agent/badge"/></a>
+  </p>
+  <p align="center">
+    <a href="https://deepsource.io/gh/HQarroum/iot-jobs-agent/?ref=repository-badge" target="_blank"><img alt="DeepSource" title="DeepSource" src="https://deepsource.io/gh/HQarroum/iot-jobs-agent.svg/?label=active+issues&show_trend=true"/></a>
+  </p>
 </p>
-<br /><br />
-
-# iot-jobs-agent
-> A simulation AWS IoT Jobs agent that can process jobs for thousands of devices and report a state to AWS IoT Jobs.
-
-[![CodeFactor](https://www.codefactor.io/repository/github/hqarroum/iot-jobs-agent/badge)](https://www.codefactor.io/repository/github/hqarroum/iot-jobs-agent)
-[![DeepSource](https://deepsource.io/gh/HQarroum/iot-jobs-agent.svg/?label=active+issues&show_trend=true)](https://deepsource.io/gh/HQarroum/iot-jobs-agent/?ref=repository-badge)
+<br>
 
 Current version: **1.1.0**
 
