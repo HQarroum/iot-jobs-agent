@@ -17,7 +17,7 @@ Current version: **1.1.0**
 - [Installation](#-install)
 - [Description](#-description)
 - [Usage](#usage)
-- [AWS credentials](#aws-credentials)
+- [AWS credentials](#-aws-credentials)
 - [Using a specific region](#using-a-specific-region)
 
 ## 🚀 Install
