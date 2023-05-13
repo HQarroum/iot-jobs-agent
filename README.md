@@ -17,8 +17,8 @@ Current version: **1.1.0**
 - [Installation](#-install)
 - [Description](#-description)
 - [Usage](#usage)
-- [Provisionning AWS credentials](#provisioning-aws-credentials)
-- [Using a specific regions](#using-a-specific-region)
+- [AWS credentials](#aws-credentials)
+- [Using a specific region](#using-a-specific-region)
 
 ## 🚀 Install
 
