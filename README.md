@@ -123,7 +123,7 @@ iot-jobs-agent execute --number 10
 - `--min-delay`: an optional minimum delay (in milliseconds) to use when executing jobs.
 - `--max-delay`: an optional maximum delay (in milliseconds) to use when executing jobs.
 
-## AWS credentials
+## 🔐 AWS credentials
 
 The `iot-jobs-agent` command needs to retrieve STS tokens from AWS in order to interact with services on your account.
 
