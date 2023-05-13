@@ -18,7 +18,7 @@ Current version: **1.1.0**
 - [Description](#-description)
 - [Usage](#usage)
 - [AWS credentials](#-aws-credentials)
-- [Using a specific region](#using-a-specific-region)
+- [Using a specific region](#-using-a-specific-region)
 
 ## 🚀 Install
 
@@ -149,7 +149,7 @@ $ AWS_ACCESS_KEY_ID=<access-key-id> AWS_SECRET_ACCESS_KEY=<secret-access-key> io
 
 > If you are using temporary credentials you can also specify an `AWS_SESSION_TOKEN` additionally to the aforementioned variables.
 
-## Using a specific region
+## 🌎 Using a specific region
 
 By default, the `iot-jobs-agent` command will use the AWS region specified in your `default` profile in case you have installed and configured AWS CLI. Alternatively, the region to use can be explicitly specified by setting the `AWS_REGION` environment variable.
 
