@@ -32,6 +32,12 @@ Once installed, you can verify that the package was successfully installed by ru
 iot-jobs-agent --version
 ```
 
+You can also alternatively use `npx` without having to explicitely install the package.
+
+```bash
+npx iot-jobs-agent --version
+```
+
 ## 🔰 Description
 
 The IoT Jobs agent is a Node.js command-line tool providing a way for developers, architects and DevOps teams to test a deployment of [AWS IoT Jobs](https://docs.aws.amazon.com/iot/latest/developerguide/iot-jobs.html) at scale by simulating the behavior of a real device.
@@ -117,36 +123,36 @@ iot-jobs-agent execute --number 10
 - `--min-delay`: an optional minimum delay (in milliseconds) to use when executing jobs.
 - `--max-delay`: an optional maximum delay (in milliseconds) to use when executing jobs.
 
-## Provisionning AWS credentials
+## AWS credentials
 
-The `iot-jobs-agent` needs to retrieve STS tokens from AWS in order to interact with services on your account. The easiest way to achieve this is to have the [AWS CLI](https://aws.amazon.com/fr/cli/) installed **and** configured on your development or deployment machine.
-
-> Read more on [Installing the AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/installing.html) and [Configuring the AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html).
+The `iot-jobs-agent` command needs to retrieve STS tokens from AWS in order to interact with services on your account.
 
 If you happen to have the AWS CLI installed and configured with valid credentials on your local machine, the `iot-jobs-agent` will automatically use these credentials to authenticate against the AWS services it is making requests against.
 
+> Read more on [Installing the AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/installing.html) and [Configuring the AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html).
+
 ### Using AWS Profiles
 
-If you have configured the AWS CLI with different [profiles](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html), it is possible to explicitly specify an AWS profile to use with the `iot-jobs-agent` by specifying the `AWS_PROFILE` variable in your environment such as in the following example.
+If you have configured the AWS CLI with different [profiles](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html), it is possible to explicitly specify an AWS profile to use with the `iot-jobs-agent` command by specifying the `AWS_PROFILE` variable in your environment such as in the following example.
 
 ```bash
-AWS_PROFILE=my-custom-profile node jobs-agent.js <command>
+AWS_PROFILE=my-custom-profile iot-jobs-agent <command>
 ```
 
 ### Specifying custom AWS credentials
 
-If you do not have the AWS CLI installed or configured, or you would like to use the `jobs-agent` with custom credentials, you can pass your `AWS_ACCESS_KEY_ID` and your `AWS_SECRET_ACCESS_KEY` as environment variables of the `jobs-agent` such as in the following example :
+If you do not have the AWS CLI installed or configured, or you would like to use the `iot-jobs-agent` command with custom credentials, you can pass your `AWS_ACCESS_KEY_ID` and your `AWS_SECRET_ACCESS_KEY` as environment variables of the `jobs-agent` such as in the following example :
 
 ```bash
-$ AWS_ACCESS_KEY_ID=<access-key-id> AWS_SECRET_ACCESS_KEY=<secret-access-key> node jobs-agent.js <command>
+$ AWS_ACCESS_KEY_ID=<access-key-id> AWS_SECRET_ACCESS_KEY=<secret-access-key> iot-jobs-agent <command>
 ```
 
 > If you are using temporary credentials you can also specify an `AWS_SESSION_TOKEN` additionally to the aforementioned variables.
 
 ## Using a specific region
 
-By default, the `jobs-agent` will use the AWS region specified in your `default` profile in case you have installed and configured AWS CLI. Alternatively, the region to use can be explicitly specified by setting the `AWS_REGION` environment variable.
+By default, the `iot-jobs-agent` command will use the AWS region specified in your `default` profile in case you have installed and configured AWS CLI. Alternatively, the region to use can be explicitly specified by setting the `AWS_REGION` environment variable.
 
 ```bash
-$ AWS_REGION=us-east-1 node jobs-agent.js <command>
+$ AWS_REGION=us-east-1 iot-jobs-agent <command>
 ```
