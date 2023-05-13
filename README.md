@@ -11,8 +11,6 @@
 </p>
 <br>
 
-Current version: **1.1.0**
-
 ## 📋 Table of content
 
 - [Installation](#-install)
