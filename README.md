@@ -7,9 +7,6 @@
   <p align="center">
     <a href="https://www.codefactor.io/repository/github/hqarroum/iot-jobs-agent" target="_blank"><img alt="CodeFactor" title="CodeFactor" src="https://www.codefactor.io/repository/github/hqarroum/iot-jobs-agent/badge"/></a>
   </p>
-  <p align="center">
-    <a href="https://deepsource.io/gh/HQarroum/iot-jobs-agent/?ref=repository-badge" target="_blank"><img alt="DeepSource" title="DeepSource" src="https://deepsource.io/gh/HQarroum/iot-jobs-agent.svg/?label=active+issues&show_trend=true"/></a>
-  </p>
 </p>
 <br>
 
