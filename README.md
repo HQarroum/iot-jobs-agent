@@ -2,6 +2,7 @@
 <p align="center">
   <img src="assets/icon.png">
   <br><br>
+  <hr />
   <p align="center">An AWS IoT Jobs autonomous agent that can process jobs for thousands of devices and report a state to AWS IoT Jobs.<p>
   <p align="center">
     <a href="https://www.codefactor.io/repository/github/hqarroum/iot-jobs-agent" target="_blank"><img alt="CodeFactor" title="CodeFactor" src="https://www.codefactor.io/repository/github/hqarroum/iot-jobs-agent/badge"/></a>
