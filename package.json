@@ -1,6 +1,6 @@
 {
   "name": "iot-jobs-agent",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "A simulation agent for AWS IoT Jobs that can process jobs for thousands of devices and report a state to AWS IoT Jobs.",
   "main": "jobs-agent.js",
   "type": "module",
@@ -18,15 +18,16 @@
   "author": "Halim Qarroum <hqm.post@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "aws-sdk": "^2.1254.0",
-    "chalk": "^4.0.0",
+    "@aws-sdk/client-iot": "^3.332.0",
+    "@aws-sdk/client-iot-jobs-data-plane": "^3.332.0",
+    "chalk": "^5.2.0",
     "cli-table": "^0.3.11",
-    "commander": "^9.4.1",
+    "commander": "^10.0.1",
     "joi": "^17.7.0",
     "middleware-chain-js": "^2.0.2",
     "ora": "^6.1.2",
-    "promise-pool-js": "^1.0.2",
-    "proxy-agent": "^5.0.0",
+    "p-throttle": "^5.1.0",
+    "proxy-agent": "^6.2.0",
     "signale": "^1.4.0"
   },
   "devDependencies": {

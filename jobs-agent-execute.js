@@ -1,10 +1,10 @@
 import { Command } from 'commander';
+import { IoTJobsDataPlane } from '@aws-sdk/client-iot-jobs-data-plane';
 import Joi from 'joi';
 import signale from 'signale';
 import Chain from 'middleware-chain-js';
-import AWS from 'aws-sdk';
 import ora from 'ora';
-import Pool from 'promise-pool-js';
+import pThrottle from 'p-throttle';
 import State from './lib/common/states.js';
 import defaultExecutor from './lib/executors/default-executor.js';
 
@@ -13,13 +13,14 @@ import initializationRoutines from './lib/middlewares/initialization-routines.js
 import endpointResolver from './lib/middlewares/endpoint-resolver.js';
 import generateDevices from './lib/middlewares/generate-devices.js';
 import schemaValidator from './lib/middlewares/schema-validator.js';
+import count from './lib/middlewares/count.js';
 
 // Instanciating the middleware chain.
 const chain = new Chain();
 
-// Creating the promise pool that will throttle
-// AWS API calls.
-const pool = new Pool(5);
+// Creating the throttling function,
+// limiting 50 calls per second.
+const throttle = pThrottle({ limit: 30, interval: 1000, strict: true });
 
 // Spinners.
 const spinners = {
@@ -32,7 +33,7 @@ const spinners = {
 /**
  * The command options schema.
  */
- const schema = Joi.object().keys({
+const schema = Joi.object().keys({
   number: Joi.number().min(1).required(),
   failureRate: Joi.number().min(0).max(100).default(0).optional(),
   minDelay: Joi.number().min(0).default(100).optional(),
@@ -43,8 +44,8 @@ const spinners = {
  * Command-line interface.
  */
 const program = new Command()
-  .name('jobs-agent-execute')
-  .description('Executes any queued job for selected amount of IoT things on the AWS IoT registry.')
+  .name('iot-jobs-agent execute')
+  .description('Executes any queued job for the given amount of IoT things.')
   .option('-n, --number <number>', 'Specifies the amount of the things to execute the job of.')
   .option('-f, --failure-rate <percentage>', 'An optional failure percentage to insert when executing jobs.')
   .option('-m, --min-delay <milliseconds>', 'An optional minimum delay to use when executing jobs.')
@@ -56,7 +57,7 @@ const program = new Command()
  * @param {*} current the current number of job retrieval.
  * @param {*} total the total number of jobs to retrieve.
  */
-const jobRetrievalStats = (current, total) => `Retrieving ${total} job(s) (${current}/${total})`;
+const jobRetrievalStats = (current, total) => `Starting ${total} job(s) (${current}/${total})`;
 
 /**
  * @return a text associated with the update completion spinner
@@ -70,45 +71,49 @@ const completionStats = (succeeded, failed, total) => `Completion statistics (${
 /**
  * Gets the next job for the thing associated
  * with the given `thingName`.
- * @param {*} endpoint the AWS IoT Jobs endpoint.
+ * @param {*} iotJobsClient the AWS IoT Jobs data plane client.
  * @param {*} thingName the thing name.
  */
-const getNextJob = (endpoint, thingName) => {
-  return (pool
-    .enqueue(() => new AWS.IoTJobsDataPlane({ endpoint })
-    .startNextPendingJobExecution({ thingName })
-    .promise()
-    .then((data) => data.execution || {})
-  ));
-};
+const getNextJob = throttle(async (iotJobsClient, thingName) => {
+  const data = await (iotJobsClient.startNextPendingJobExecution({ thingName }));
+  return (data.execution || {});
+});
 
 /**
  * Updates the state of an IoT Job.
- * @param {*} endpoint the AWS IoT Jobs endpoint.
+ * @param {*} iotJobsClient the AWS IoT Jobs data plane client.
  * @param {*} job the job to update.
  * @param {*} thingName the name of the thing associated
  * with the job.
  * @param {*} state the state to associate with the job.
  */
-const updateState = (endpoint, job, thingName, state) => {
-  return (pool
-    .enqueue(() => new AWS.IoTJobsDataPlane({ endpoint })
-    .updateJobExecution({
-      jobId: job.jobId,
-      status: state,
-      thingName
-    }).promise())
-  );
-};
+const updateState = throttle((iotJobsClient, job, thingName, state) => {
+  return (iotJobsClient.updateJobExecution({
+    jobId: job.jobId,
+    status: state,
+    thingName
+  }));
+});
 
 /**
  * Injecting the initialization routines into the `chain`.
  */
 chain
+  .use(schemaValidator(schema, program.opts()))
+  .use(count(program.opts().number))
   .use(initializationRoutines)
   .use(endpointResolver('iot:Jobs'))
-  .use(schemaValidator(schema, program.opts()))
   .use(generateDevices);
+
+/**
+ * Instanciating and configuring the `IoTJobsDataPlane` client.
+ */
+chain.use((input, _, next) => {
+  next(input.iotJobsClient = new IoTJobsDataPlane({
+    endpoint: input.endpoint,
+    maxAttempts: 10
+  }));
+});
 
 /**
  * Initialization of the different components
@@ -138,7 +143,7 @@ chain.use(async (input, _, next) => {
     input.devices.map(async (thingName) => {
       const result = {
         thingName,
-        job: await getNextJob(input.endpoint, thingName)
+        job: await getNextJob(input.iotJobsClient, thingName)
       };
       // Inserting the device into the array
       // only if the job is valid.
@@ -171,12 +176,12 @@ chain.use(async (input, _1, next) => {
   try {
     // Marking the devices as having either succeeded
     // or failed the job execution.
-    await Promise.all(
+    await Promise.allSettled(
       input.jobs.map(async (device) => {
         // Executing the job.
         const status = await executor(device, input.minDelay, input.maxDelay);
         // Reporting the job execution as succeded or failed.
-        await updateState(input.endpoint, device.job, device.thingName, status);
+        await updateState(input.iotJobsClient, device.job, device.thingName, status);
         // Updating the job execution spinner.
         spinners.completion.text = completionStats(
           status === State.SUCCEEDED ? ++succeeded : succeeded,

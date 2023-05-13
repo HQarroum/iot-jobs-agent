@@ -10,7 +10,7 @@
 [![CodeFactor](https://www.codefactor.io/repository/github/hqarroum/iot-jobs-agent/badge)](https://www.codefactor.io/repository/github/hqarroum/iot-jobs-agent)
 [![DeepSource](https://deepsource.io/gh/HQarroum/iot-jobs-agent.svg/?label=active+issues&show_trend=true)](https://deepsource.io/gh/HQarroum/iot-jobs-agent/?ref=repository-badge)
 
-Current version: **1.0.0**
+Current version: **1.1.0**
 
 ## 📋 Table of content
 
@@ -34,9 +34,9 @@ iot-jobs-agent --version
 
 ## 🔰 Description
 
-The device agent is a Node.js application providing a way for developers, architects and DevOps teams to test a deployment of [AWS IoT Jobs](https://docs.aws.amazon.com/iot/latest/developerguide/iot-jobs.html) at scale by simulating the behavior of a real device.
+The IoT Jobs agent is a Node.js command-line tool providing a way for developers, architects and DevOps teams to test a deployment of [AWS IoT Jobs](https://docs.aws.amazon.com/iot/latest/developerguide/iot-jobs.html) at scale by simulating the behavior of a real device.
 
-When used, the device agent allows you to create as many virtual thing(s) as needed in the AWS IoT device registry, and to download jobs from the AWS IoT Jobs data plane, potentially execute the jobs locally, and report back a state to the data plane.
+When used, the agent allows you to create as many virtual thing(s) as needed in the AWS IoT device registry, and to download jobs from the AWS IoT Jobs data plane, potentially execute the jobs locally, and report back a state to the data plane.
 
 ## 📘 Usage
 
@@ -150,5 +150,3 @@ By default, the `jobs-agent` will use the AWS region specified in your `default`
 ```bash
 $ AWS_REGION=us-east-1 node jobs-agent.js <command>
 ```
-
-If you do not have the AWS CLI configured with a specific region to use, and no environment variable is specified for the region to use, the `jobs-agent` will output a warning and use the `eu-west-1` region by default.

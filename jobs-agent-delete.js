@@ -1,21 +1,26 @@
 import { Command } from 'commander';
+import { IoT } from '@aws-sdk/client-iot';
 import signale from 'signale';
 import Chain from 'middleware-chain-js';
-import AWS from 'aws-sdk';
 import ora from 'ora';
-import Pool from 'promise-pool-js';
-import Joi from 'joi';
+import pThrottle from 'p-throttle';
 
 // Middlewares.
 import initializationRoutines from './lib/middlewares/initialization-routines.js';
 import generateDevices from './lib/middlewares/generate-devices.js';
-import schemaValidator from './lib/middlewares/schema-validator.js';
+import count from './lib/middlewares/count.js';
+
+// Instanciating the IoT Client.
+const iotClient = new IoT({
+  maxAttempts: 10
+});
 
 // Instanciating the middleware chain.
 const chain = new Chain();
 
-// Creating the promise pool.
-const pool = new Pool(10);
+// Creating the throttling function,
+// limiting 50 calls per second.
+const throttle = pThrottle({ limit: 50, interval: 1000 });
 
 // Spinners.
 const spinners = {
@@ -23,19 +28,12 @@ const spinners = {
 };
 
 /**
- * The command options schema.
- */
-const schema = Joi.object().keys({
-  number: Joi.number().min(1).required()
-}).unknown();
-
-/**
  * Command-line interface.
  */
 const program = new Command()
-  .name('jobs-agent-delete')
+  .name('iot-jobs-agent delete')
   .description('Deletes the selected amount of IoT things from the AWS IoT registry.')
-  .option('-n, --number <number>', 'Specifies the amount of the things to delete from AWS IoT.')
+  .requiredOption('-n, --number <number>', 'Specifies the amount of the things to delete from AWS IoT.')
   .parse(process.argv);
 
 /**
@@ -49,23 +47,19 @@ const thingsStats = (current, total) => `Deleting ${total} thing(s) from AWS IoT
 /**
  * Deletes the given `thing` from the AWS IoT
  * device registry.
- * @param {*} thing a thing name to delete
+ * @param {*} thingName a thing name to delete
  * from the AWS IoT device registry.
  * @return a promise resolved when the given
  * `thing` has been deleted.
  */
-const deleteThing = (thing) => {
-  return (pool
-    .enqueue(() => new AWS.Iot().deleteThing({ thingName: thing }).promise())
-  );
-};
+const deleteThing = throttle((thingName) => iotClient.deleteThing({ thingName }));
 
 /**
  * Injecting the middlewares into the `chain`.
  */
  chain
+  .use(count(program.opts().number))
   .use(initializationRoutines)
-  .use(schemaValidator(schema, program.opts()))
   .use(generateDevices);
 
 /**
