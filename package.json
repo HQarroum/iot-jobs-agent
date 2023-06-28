@@ -27,7 +27,7 @@
     "middleware-chain-js": "^2.0.2",
     "ora": "^6.1.2",
     "p-throttle": "^5.1.0",
-    "proxy-agent": "^6.2.0",
+    "proxy-agent": "^6.2.1",
     "signale": "^1.4.0"
   },
   "devDependencies": {
