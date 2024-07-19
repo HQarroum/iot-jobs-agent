@@ -18,19 +18,19 @@
   "author": "Halim Qarroum <hqm.post@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@aws-sdk/client-iot": "^3.332.0",
-    "@aws-sdk/client-iot-jobs-data-plane": "^3.332.0",
-    "chalk": "^5.2.0",
+    "@aws-sdk/client-iot": "^3.616.0",
+    "@aws-sdk/client-iot-jobs-data-plane": "^3.616.0",
+    "chalk": "^5.3.0",
     "cli-table": "^0.3.11",
     "commander": "^10.0.1",
-    "joi": "^17.7.0",
+    "joi": "^17.13.3",
     "middleware-chain-js": "^2.0.2",
     "ora": "^6.1.2",
     "p-throttle": "^5.1.0",
-    "proxy-agent": "^6.2.0",
+    "proxy-agent": "^6.4.0",
     "signale": "^1.4.0"
   },
   "devDependencies": {
-    "eslint": "^8.25.0"
+    "eslint": "^8.57.0"
   }
 }
